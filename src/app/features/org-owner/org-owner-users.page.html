@@ -55,20 +55,24 @@
                 >
                   Ver
                 </button>
-                <button
-                  type="button"
-                  class="rounded-lg px-2 py-2 text-left text-sm text-athlium-text transition hover:bg-athlium-surface-2/40"
-                  (click)="editUserRoles(user.id)"
-                >
-                  Editar
-                </button>
-                <button
-                  type="button"
-                  class="rounded-lg px-2 py-2 text-left text-sm text-red-300 transition hover:bg-red-500/10"
-                  (click)="deleteUser(user.id)"
-                >
-                  Eliminar
-                </button>
+                @if (canEditUser(user)) {
+                  <button
+                    type="button"
+                    class="rounded-lg px-2 py-2 text-left text-sm text-athlium-text transition hover:bg-athlium-surface-2/40"
+                    (click)="editUserRoles(user.id)"
+                  >
+                    Editar
+                  </button>
+                }
+                @if (canDeleteUser(user)) {
+                  <button
+                    type="button"
+                    class="rounded-lg px-2 py-2 text-left text-sm text-red-300 transition hover:bg-red-500/10"
+                    (click)="deleteUser(user.id)"
+                  >
+                    Eliminar
+                  </button>
+                }
               </div>
             }
           </li>
@@ -114,20 +118,24 @@
                       >
                         Ver
                       </button>
-                      <button
-                        type="button"
-                        class="rounded-lg px-2 py-2 text-left text-sm text-athlium-text transition hover:bg-athlium-surface-2/40"
-                        (click)="editUserRoles(user.id)"
-                      >
-                        Editar
-                      </button>
-                      <button
-                        type="button"
-                        class="rounded-lg px-2 py-2 text-left text-sm text-red-300 transition hover:bg-red-500/10"
-                        (click)="deleteUser(user.id)"
-                      >
-                        Eliminar
-                      </button>
+                      @if (canEditUser(user)) {
+                        <button
+                          type="button"
+                          class="rounded-lg px-2 py-2 text-left text-sm text-athlium-text transition hover:bg-athlium-surface-2/40"
+                          (click)="editUserRoles(user.id)"
+                        >
+                          Editar
+                        </button>
+                      }
+                      @if (canDeleteUser(user)) {
+                        <button
+                          type="button"
+                          class="rounded-lg px-2 py-2 text-left text-sm text-red-300 transition hover:bg-red-500/10"
+                          (click)="deleteUser(user.id)"
+                        >
+                          Eliminar
+                        </button>
+                      }
                     </div>
                   }
                 </div>

@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { of, switchMap } from 'rxjs';
 import { UserScopeService } from '../../core/auth';
 import { UsersApi } from '../../core/api/users.api';
+import { Role, User } from '../../core/domain/models';
 
 @Component({
   selector: 'app-org-owner-users-page',
@@ -85,6 +86,14 @@ export class OrgOwnerUsersPage {
   protected async editUserRoles(userId: number): Promise<void> {
     this.openUserMenuId.set(null);
     await this.router.navigateByUrl(`/users/${userId}/edit`);
+  }
+
+  protected canEditUser(user: User): boolean {
+    return !user.roles.includes(Role.SUPERADMIN);
+  }
+
+  protected canDeleteUser(user: User): boolean {
+    return this.canEditUser(user);
   }
 
   protected async deleteUser(userId: number): Promise<void> {

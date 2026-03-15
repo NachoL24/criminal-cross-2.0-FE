@@ -1,8 +1,10 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { UsersApi } from '../../core/api/users.api';
+import { AuthSessionService } from '../../core/auth';
+import { Role } from '../../core/domain/models';
 import { UiToastService } from '../../core/ui/toast.service';
 
 @Component({
@@ -15,6 +17,7 @@ export class SuperadminUserDeletePage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly usersApi = inject(UsersApi);
+  private readonly authSession = inject(AuthSessionService);
   private readonly toast = inject(UiToastService);
 
   private readonly userId = Number(this.route.snapshot.paramMap.get('userId'));
@@ -31,7 +34,34 @@ export class SuperadminUserDeletePage {
     },
   });
 
+  protected readonly currentEditorRole = computed(
+    () => this.authSession.user()?.roles[0] ?? Role.ORG_ADMIN,
+  );
+  protected readonly canDeleteTargetUser = computed(() => {
+    const user = this.user();
+
+    switch (this.currentEditorRole()) {
+      case Role.SUPERADMIN:
+        return true;
+      case Role.ORG_OWNER:
+        return !user.roles.includes(Role.SUPERADMIN);
+      case Role.ORG_ADMIN:
+        return !user.roles.some((role) => [Role.SUPERADMIN, Role.ORG_OWNER].includes(role));
+      case Role.PROFESSOR:
+        return !user.roles.some((role) =>
+          [Role.SUPERADMIN, Role.ORG_OWNER, Role.ORG_ADMIN].includes(role),
+        );
+      default:
+        return false;
+    }
+  });
+
   protected async confirmDelete(): Promise<void> {
+    if (!this.canDeleteTargetUser()) {
+      this.toast.error('No tienes permisos para eliminar este usuario.');
+      return;
+    }
+
     try {
       await firstValueFrom(this.usersApi.remove(this.userId));
       this.toast.success('Usuario eliminado.');

@@ -14,6 +14,14 @@
     </p>
     <p class="text-sm text-athlium-muted">{{ user().email }}</p>
 
+    @if (!canDeleteTargetUser()) {
+      <p
+        class="mt-4 rounded-xl border border-red-400/25 bg-red-500/10 px-3 py-2 text-sm text-red-200"
+      >
+        No tienes permisos para eliminar este usuario.
+      </p>
+    }
+
     <p
       class="mt-4 rounded-xl border border-red-400/25 bg-red-500/10 px-3 py-2 text-sm text-red-200"
     >
@@ -25,6 +33,7 @@
         type="button"
         class="rounded-xl border border-red-400/35 bg-red-500/10 px-4 py-2 font-semibold text-red-200 transition hover:bg-red-500/20"
         (click)="confirmDelete()"
+        [disabled]="!canDeleteTargetUser()"
       >
         Confirmar eliminación
       </button>

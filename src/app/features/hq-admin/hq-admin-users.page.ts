@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { of, switchMap } from 'rxjs';
 import { UserScopeService } from '../../core/auth';
 import { UsersApi } from '../../core/api/users.api';
+import { Role, User } from '../../core/domain/models';
 
 @Component({
   selector: 'app-hq-admin-users-page',
@@ -88,6 +89,15 @@ export class HqAdminUsersPage {
   protected async editUser(userId: number): Promise<void> {
     this.openUserMenuId.set(null);
     await this.router.navigateByUrl(`/users/${userId}/edit`);
+  }
+
+  protected canEditUser(user: User): boolean {
+    const blockedRoles = new Set([Role.SUPERADMIN, Role.ORG_OWNER]);
+    return !user.roles.some((role) => blockedRoles.has(role));
+  }
+
+  protected canDeleteUser(user: User): boolean {
+    return this.canEditUser(user);
   }
 
   protected async deleteUser(userId: number): Promise<void> {

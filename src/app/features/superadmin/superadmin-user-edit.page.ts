@@ -52,6 +52,27 @@ export class SuperadminUserEditPage {
   protected readonly user = toSignal(this.usersApi.getById(this.userId), {
     initialValue: null,
   });
+  protected readonly canEditTargetUser = computed(() => {
+    const user = this.user();
+    if (!user) {
+      return true;
+    }
+
+    switch (this.currentEditorRole()) {
+      case Role.SUPERADMIN:
+        return true;
+      case Role.ORG_OWNER:
+        return !user.roles.includes(Role.SUPERADMIN);
+      case Role.ORG_ADMIN:
+        return !user.roles.some((role) => [Role.SUPERADMIN, Role.ORG_OWNER].includes(role));
+      case Role.PROFESSOR:
+        return !user.roles.some((role) =>
+          [Role.SUPERADMIN, Role.ORG_OWNER, Role.ORG_ADMIN].includes(role),
+        );
+      default:
+        return false;
+    }
+  });
 
   protected readonly selectedRoles = signal<Role[]>([]);
   protected readonly errorMessage = signal<string | null>(null);
@@ -107,6 +128,11 @@ export class SuperadminUserEditPage {
 
   protected async save(): Promise<void> {
     if (this.isLoading() || this.isSaving()) {
+      return;
+    }
+
+    if (!this.canEditTargetUser()) {
+      this.errorMessage.set('No tienes permisos para editar este usuario.');
       return;
     }
 

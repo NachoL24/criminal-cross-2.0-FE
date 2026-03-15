@@ -68,13 +68,15 @@
                 >
                   Ver
                 </button>
-                <button
-                  type="button"
-                  class="rounded-lg px-2 py-2 text-left text-sm text-athlium-text transition hover:bg-athlium-surface-2/40"
-                  (click)="editUser(user.id)"
-                >
-                  Editar
-                </button>
+                @if (canEditUser(user)) {
+                  <button
+                    type="button"
+                    class="rounded-lg px-2 py-2 text-left text-sm text-athlium-text transition hover:bg-athlium-surface-2/40"
+                    (click)="editUser(user.id)"
+                  >
+                    Editar
+                  </button>
+                }
               </div>
             }
           </li>
@@ -120,13 +122,15 @@
                       >
                         Ver
                       </button>
-                      <button
-                        type="button"
-                        class="rounded-lg px-2 py-2 text-left text-sm text-athlium-text transition hover:bg-athlium-surface-2/40"
-                        (click)="editUser(user.id)"
-                      >
-                        Editar
-                      </button>
+                      @if (canEditUser(user)) {
+                        <button
+                          type="button"
+                          class="rounded-lg px-2 py-2 text-left text-sm text-athlium-text transition hover:bg-athlium-surface-2/40"
+                          (click)="editUser(user.id)"
+                        >
+                          Editar
+                        </button>
+                      }
                     </div>
                   }
                 </div>
