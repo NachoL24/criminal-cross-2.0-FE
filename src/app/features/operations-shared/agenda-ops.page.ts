@@ -9,11 +9,13 @@ import {
 } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { map, of, switchMap } from 'rxjs';
+import { firstValueFrom, map, of, switchMap } from 'rxjs';
+import { ActivitySchedulesApi } from '../../core/api/activity-schedules.api';
 import { ActivitiesApi } from '../../core/api/activities.api';
 import { SessionsApi } from '../../core/api/sessions.api';
 import { UserScopeService } from '../../core/auth';
 import { SessionInstance, SessionStatus } from '../../core/domain/models';
+import { UiToastService } from '../../core/ui/toast.service';
 
 interface AgendaParticipant {
   id: number;
@@ -32,7 +34,9 @@ export class AgendaOpsPage {
   private readonly route = inject(ActivatedRoute);
   private readonly sessionsApi = inject(SessionsApi);
   private readonly activitiesApi = inject(ActivitiesApi);
+  private readonly schedulesApi = inject(ActivitySchedulesApi);
   private readonly userScope = inject(UserScopeService);
+  private readonly toast = inject(UiToastService);
 
   protected readonly scope = this.route.snapshot.data['scope'] as 'org' | 'hq';
   private readonly pageSize = 20;
@@ -46,6 +50,7 @@ export class AgendaOpsPage {
   protected readonly title = this.scope === 'org' ? 'Agenda por sede' : 'Agenda';
   protected readonly currentPage = signal(0);
   protected readonly selectedSessionId = signal<number | null>(null);
+  protected readonly triggerLoading = signal(false);
   protected readonly selectedHeadquartersId = signal(
     this.scope === 'hq' ? this.defaultHeadquartersId() : 0,
   );
@@ -173,6 +178,20 @@ export class AgendaOpsPage {
 
   protected closeSessionDetail(): void {
     this.selectedSessionId.set(null);
+  }
+
+  protected async triggerAgendaRefresh(): Promise<void> {
+    this.triggerLoading.set(true);
+    try {
+      await firstValueFrom(this.schedulesApi.generateNextWeek());
+      this.toast.success('Actualización de agenda iniciada correctamente.');
+      this.currentPage.set(0);
+      this.selectedSessionId.set(null);
+    } catch {
+      this.toast.error('No se pudo actualizar la agenda.');
+    } finally {
+      this.triggerLoading.set(false);
+    }
   }
 
   protected activityName(activityId: number, activityName?: string | null): string {

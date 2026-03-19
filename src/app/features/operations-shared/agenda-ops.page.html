@@ -9,6 +9,20 @@
         <p class="mt-1 text-sm text-athlium-muted">
           Sesiones ordenadas por inicio. El detalle se abre al seleccionar una fila.
         </p>
+        <p class="mt-1 text-xs text-athlium-muted/90">
+          El scheduler automático corre todos los domingos 00:00 UTC.
+        </p>
+      </div>
+
+      <div class="flex items-end gap-2">
+        <button
+          type="button"
+          class="rounded-xl bg-athlium-primary px-4 py-2 text-sm font-semibold text-athlium-text transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+          [disabled]="triggerLoading()"
+          (click)="triggerAgendaRefresh()"
+        >
+          {{ triggerLoading() ? 'Actualizando…' : 'Actualizar agenda' }}
+        </button>
       </div>
 
       @if (scope === 'org') {
