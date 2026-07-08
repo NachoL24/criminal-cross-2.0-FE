@@ -34,6 +34,20 @@ export class SuperadminUserEditPage {
   protected readonly currentEditorRole = computed(
     () => this.authSession.user()?.roles[0] ?? Role.ORG_ADMIN,
   );
+  private readonly usersListPath = computed(() => {
+    switch (this.currentEditorRole()) {
+      case Role.SUPERADMIN:
+        return '/users';
+      case Role.ORG_OWNER:
+        return '/org-owner/users';
+      case Role.ORG_ADMIN:
+        return '/hq-admin/users';
+      case Role.PROFESSOR:
+        return '/professor/users';
+      default:
+        return '/users';
+    }
+  });
   protected readonly canEditRoles = computed(() => this.currentEditorRole() !== Role.PROFESSOR);
   protected readonly availableRoles = computed(() => {
     switch (this.currentEditorRole()) {
@@ -182,7 +196,7 @@ export class SuperadminUserEditPage {
         await firstValueFrom(this.usersApi.updateRolesById(this.userId, rolesPayload));
       }
       this.toast.success('Usuario actualizado.');
-      await this.router.navigateByUrl('/users');
+      await this.router.navigateByUrl(this.usersListPath());
     } catch {
       this.errorMessage.set('No se pudieron guardar los cambios.');
       this.toast.error('No se pudo actualizar el usuario.');
@@ -192,6 +206,6 @@ export class SuperadminUserEditPage {
   }
 
   protected async cancel(): Promise<void> {
-    await this.router.navigateByUrl('/users');
+    await this.router.navigateByUrl(this.usersListPath());
   }
 }

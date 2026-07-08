@@ -37,6 +37,20 @@ export class SuperadminUserDeletePage {
   protected readonly currentEditorRole = computed(
     () => this.authSession.user()?.roles[0] ?? Role.ORG_ADMIN,
   );
+  private readonly usersListPath = computed(() => {
+    switch (this.currentEditorRole()) {
+      case Role.SUPERADMIN:
+        return '/users';
+      case Role.ORG_OWNER:
+        return '/org-owner/users';
+      case Role.ORG_ADMIN:
+        return '/hq-admin/users';
+      case Role.PROFESSOR:
+        return '/professor/users';
+      default:
+        return '/users';
+    }
+  });
   protected readonly canDeleteTargetUser = computed(() => {
     const user = this.user();
 
@@ -65,13 +79,13 @@ export class SuperadminUserDeletePage {
     try {
       await firstValueFrom(this.usersApi.remove(this.userId));
       this.toast.success('Usuario eliminado.');
-      await this.router.navigateByUrl('/users');
+      await this.router.navigateByUrl(this.usersListPath());
     } catch {
       this.toast.error('No se pudo eliminar el usuario.');
     }
   }
 
   protected async cancel(): Promise<void> {
-    await this.router.navigateByUrl('/users');
+    await this.router.navigateByUrl(this.usersListPath());
   }
 }

@@ -5,6 +5,7 @@ import { ApiResponse, Organization, PageResult } from '../domain/models';
 import { API_BASE_URL } from '../http/api-base-url.token';
 import { API_MOCK_MODE } from '../http';
 import { toHttpParams } from '../http/http-params.util';
+import { HeadquartersApi } from './headquarters.api';
 
 const MOCK_ORGANIZATIONS: Organization[] = [
   'Athlium Norte',
@@ -75,6 +76,7 @@ export class OrganizationsApi {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = inject(API_BASE_URL);
   private readonly apiMockMode = inject(API_MOCK_MODE);
+  private readonly headquartersApi = inject(HeadquartersApi);
   private readonly pageCache = new Map<string, Observable<PageResult<Organization>>>();
   private readonly byIdCache = new Map<number, Observable<Organization>>();
   private allCache: Observable<Organization[]> | null = null;
@@ -198,8 +200,13 @@ export class OrganizationsApi {
       return of(void 0);
     }
 
-    return this.http
-      .delete<void>(`${this.baseUrl}/organizations/${id}`)
-      .pipe(tap(() => this.invalidateCaches()));
+    return this.http.delete<void>(`${this.baseUrl}/organizations/${id}`).pipe(
+      tap(() => {
+        this.invalidateCaches();
+        // Deleting an organization cascades to its headquarters on the backend,
+        // so their cache must be dropped to avoid showing stale sedes.
+        this.headquartersApi.invalidateCaches();
+      }),
+    );
   }
 }

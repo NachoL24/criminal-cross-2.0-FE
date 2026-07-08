@@ -76,7 +76,7 @@ export class HeadquartersApi {
   private readonly allCache = new Map<string, Observable<Headquarters[]>>();
   private readonly byIdCache = new Map<number, Observable<Headquarters>>();
 
-  private invalidateCaches(): void {
+  invalidateCaches(): void {
     this.pageCache.clear();
     this.allCache.clear();
     this.byIdCache.clear();
